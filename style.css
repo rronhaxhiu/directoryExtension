@@ -1,0 +1,138 @@
+/* Sidebar container styles */
+#fileExplorer {
+    width: 300px;
+    /* Width of the sidebar */
+    height: 100vh;
+    /* Full viewport height */
+    position: fixed;
+    /* Fixed position to stay on the left side */
+    top: 0;
+    left: 0;
+    /* Position on the left */
+    background-color: white;
+    /* Light background color */
+    border-right: 2px solid #ddd;
+    /* Border to the right of the sidebar */
+    overflow-y: auto;
+    /* Scrollable content */
+    padding: 10px;
+    /* Padding inside the sidebar */
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+    /* Shadow effect */
+}
+
+/* Styling for list items */
+#fileExplorer ul {
+    list-style-type: none;
+    /* Remove default bullets */
+    padding-left: 0;
+    /* Remove default padding */
+}
+
+#fileExplorer li {
+    margin: 5px 0;
+    /* Margin between items */
+    position: relative;
+}
+
+/* Folder styling */
+#fileExplorer .folder {
+    font-weight: bold;
+    cursor: pointer;
+    display: block;
+    padding: 5px;
+    border-radius: 7px;
+    /* Rounded corners */
+    transition: background-color 0.3s;
+    /* Smooth background color transition */
+    text-decoration: none;
+    color: #333;
+}
+
+/* Folder hover effect */
+#fileExplorer .folder:hover {
+    background-color: #e0e0e0;
+    /* Background color on hover */
+    text-decoration: none;
+}
+
+/* File styling */
+#fileExplorer .file {
+    display: block;
+    padding: 5px;
+    border-radius: 3px;
+    /* Rounded corners */
+    transition: background-color 0.3s;
+    /* Smooth background color transition */
+    text-decoration: none;
+    /* Remove underline from links */
+    color: #333;
+    /* Text color */
+}
+
+/* File hover effect */
+#fileExplorer .file:hover {
+    background-color: #e0e0e0;
+    /* Background color on hover */
+}
+
+/* Indentation for child elements */
+#fileExplorer ul ul {
+    margin-left: 20px;
+    /* Indent child items */
+}
+
+
+#explorerHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 0.5px #bfbfbf solid;
+    padding: 5px;
+    padding-bottom: 7px;
+}
+
+#explorerTitle {
+    font-size: 15px;
+    color: #333;
+}
+
+#explorerButton {
+    font-weight: bolder;
+    color: #fff;
+    border: none;
+    background: #6f6f6f;
+    border-radius: 50% !important;
+    cursor: pointer;
+    padding: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.3s;
+    width: 20px;
+    height: 20px;
+    top: 50%;
+    left: 310px;
+    z-index: 1001;
+    position: absolute;
+}
+
+#explorerButton:hover {
+    background-color: #333;
+    color: white;
+    border: none;
+}
+
+.hidden {
+    display: none;
+}
+
+#google-docs-sidebar {
+    background-color: #f4f4f4;
+}
+
+
+#fileExplorer .file.active {
+    background-color: #cce5ff;
+    font-weight: bold;
+}

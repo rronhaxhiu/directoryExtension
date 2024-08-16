@@ -1,0 +1,54 @@
+{
+  "manifest_version": 3,
+  "name": "Google Docs Explorer",
+  "description": "Lists Google Docs files",
+  "version": "1.0",
+  "permissions": [
+    "identity",
+    "identity.email",
+    "storage",
+    "activeTab",
+    "scripting"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "oauth2": {
+    "client_id": "459881505484-13n2rnhi5mbj31d3k8p2m97425ukaalr.apps.googleusercontent.com",
+    "scopes": [
+      "https://www.googleapis.com/auth/drive.readonly"
+    ]
+  },
+  "action": {
+    "default_icon": {
+      "128": "icon.jpeg"
+    },
+    "default_title": "Google Docs Explorer"
+  },
+  "icons": {
+    "128": "icon.jpeg"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "content.js"
+      ]
+    }
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "style.css"
+      ],
+      "matches": [
+        "<all_urls>"
+      ]
+    }
+  ]
+}
