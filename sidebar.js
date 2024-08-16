@@ -182,14 +182,14 @@ const loadFileExplorer = async () => {
 const createToggleButton = () => {
     const button = document.createElement('button');
     button.id = 'explorerButton';
-    button.textContent = '<';
+    button.textContent = '-';
     button.style.position = 'fixed';
-    button.style.top = '50%';
+    button.style.top = '5.25%';
 
     button.onclick = () => {
         const sidebar = document.getElementById('google-docs-sidebar');
         const isHidden = sidebar.classList.toggle('hidden');
-        button.textContent = isHidden ? '>' : '<';
+        button.textContent = isHidden ? '+' : '-';
         button.style.left = isHidden ? '0px' : '310px';
         const borderRadiusValue = isHidden ? '0px' : '50%';
 
