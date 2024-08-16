@@ -15,9 +15,11 @@ chrome.action.onClicked.addListener(() => {
                 files: ['sidebar.js']
             });
 
+            let firstTimeRender = true; 
             // Fetch files and notify the content script once they are fetched
             fetchFilesAndNotify(activeTabId);
-            firstTimeRender = false;} else {
+            firstTimeRender = false;
+        } else {
             console.error('Script can only be injected in Google Drive or Google Docs');
         }
     });
@@ -34,7 +36,7 @@ function fetchFilesAndNotify(tabId) {
 
         const allItems = new Map();  // Use Map to avoid duplicate entries
 
-        const fetchFiles = async (pageToken = '', folderId = null) => {
+        const fetchFiles = async (pageToken = '', folderId = null, driveId = null) => {
             let query = folderId ? `'${folderId}' in parents and ` : '';
             query += 'mimeType=\'application/vnd.google-apps.document\' or ' +
                 'mimeType=\'application/vnd.google-apps.folder\' or ' +
@@ -55,7 +57,15 @@ function fetchFilesAndNotify(tabId) {
                 'mimeType=\'application/vnd.openxmlformats-officedocument.wordprocessingml.document\' or ' +
                 'mimeType=\'application/zip\' or ' +
                 'mimeType=\'application/x-tar\'';
-            let url = `https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(query)}&fields=nextPageToken,files(id,name,mimeType,webViewLink,webContentLink,parents)`;
+
+            let url = `https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(query)}&fields=nextPageToken,files(id,name,mimeType,webViewLink,webContentLink,parents)&includeItemsFromAllDrives=true&supportsAllDrives=true`;
+
+            if (driveId) {
+                url += `&driveId=${driveId}&corpora=drive`;
+            } else {
+                url += `&corpora=user`;
+            }
+
             if (pageToken) {
                 url += `&pageToken=${pageToken}`;
             }
@@ -85,16 +95,16 @@ function fetchFilesAndNotify(tabId) {
             });
 
             if (data.nextPageToken) {
-                return fetchFiles(data.nextPageToken, folderId);
+                return fetchFiles(data.nextPageToken, folderId, driveId);
             }
         };
 
-        const fetchFolderContents = async (folderId) => {
-            await fetchFiles('', folderId);
+        const fetchFolderContents = async (folderId, driveId = null) => {
+            await fetchFiles('', folderId, driveId);
             const folderItems = Array.from(allItems.values()).filter(item => item && item.parents && item.parents.includes(folderId));
             const subFolderPromises = folderItems.filter(item => item.mimeType === 'application/vnd.google-apps.folder').map(subFolder => {
                 if (subFolder && subFolder.id) {
-                    return fetchFolderContents(subFolder.id);
+                    return fetchFolderContents(subFolder.id, driveId);
                 }
                 return Promise.resolve();
             });
@@ -103,6 +113,25 @@ function fetchFilesAndNotify(tabId) {
         };
 
         await fetchFiles();
+
+        const sharedDrivesResponse = await fetch('https://www.googleapis.com/drive/v3/drives', {
+            headers: {
+                'Authorization': 'Bearer ' + token
+            }
+        });
+
+        if (sharedDrivesResponse.ok) {
+            const sharedDrivesData = await sharedDrivesResponse.json();
+            const sharedDrives = sharedDrivesData.drives || [];
+
+            for (const drive of sharedDrives) {
+                console.log('Fetching Shared Drive:', drive.name);
+                await fetchFiles('', null, drive.id);
+            }
+        } else {
+            console.error('Failed to fetch Shared Drives:', sharedDrivesResponse.statusText);
+        }
+
         const rootFolders = Array.from(allItems.values()).filter(item => item.mimeType === 'application/vnd.google-apps.folder' && (!item.parents || item.parents.length === 0));
 
         if (rootFolders.length) {
