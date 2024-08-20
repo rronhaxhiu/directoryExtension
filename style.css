@@ -280,3 +280,19 @@
     left: auto;
     width: calc(100% - 345px);
 }
+
+/* Search bar  */
+#searchBarDiv {
+    direction: ltr;
+}
+
+#searchInput {
+    direction: ltr;
+    height: 20px;
+    border-radius: var(--border-radius);
+    border: 0.5px solid var(--primary-color);
+}
+
+#searchInput::placeholder {
+    color: var(--primary-color);
+}

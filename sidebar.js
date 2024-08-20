@@ -23,28 +23,40 @@ const wrapBodyContent = () => {
 const createSidebar = () => {
     const sidebar = document.createElement('div');
     sidebar.id = 'google-docs-sidebar';
-    
+
     // Add explorer header
     const explorerHeader = document.createElement('div');
     explorerHeader.id = 'explorerHeader';
-    
+
     const title = document.createElement('p');
     title.id = 'explorerTitle';
     title.textContent = 'DirExt';
+
     explorerHeader.appendChild(title);
-    
     sidebar.appendChild(explorerHeader);
-    
+
+    // Add search bar
+    const searchBarDiv = document.createElement('div');
+    searchBarDiv.id = 'searchBarDiv';
+
+    const searchInput = document.createElement('input');
+    searchInput.id = 'searchInput';
+    searchInput.type = 'text';
+    searchInput.placeholder = 'Search...';
+
+    searchBarDiv.appendChild(searchInput);
+    explorerHeader.appendChild(searchBarDiv);
+
     // Add 'Fetching files...' message
     const loadingDiv = document.createElement('div');
     const loadingMessage = document.createElement('p');
     const loader = document.createElement('div');
-    
+
     loadingDiv.id = 'loadingDiv';
     loadingMessage.id = 'loadingMessage';
     loader.id = 'loader';
     loadingMessage.textContent = 'Fetching files';
-    
+
     // Add file tree container
     const container = document.createElement('div');
     container.id = 'container';
@@ -73,7 +85,7 @@ const createSidebar = () => {
 
     const toggleSidebar = () => {
         const isHidden = sidebar.classList.toggle('hidden');
-        
+
         sidebar.style.backgroundColor = isHidden ? '#1a73e8' : '#f8fafd';
         sidebar.style.borderTopRightRadius = isHidden ? '100px' : '0px';
         sidebar.style.height = isHidden ? '15px' : '100%';
@@ -83,30 +95,32 @@ const createSidebar = () => {
         sidebar.style.paddingLeft = isHidden ? '0px' : '10px';
         sidebar.style.top = isHidden ? 'auto' : '0px';
         sidebar.style.bottom = isHidden ? '0px' : '';
-        
+
         mainPage.style.marginLeft = isHidden ? '0px' : `345px`;
 
         container.style.display = isHidden ? 'none' : 'block';
-        
+
         loadingDiv.style.opacity = isHidden ? '0' : '1';
-        
+
         title.style.display = isHidden ? 'none' : 'block';
-        
+
         button.style.transform = isHidden ? 'rotate(0deg)' : 'rotate(45deg)';
         button.style.color = isHidden ? '#f8fafd' : '#1a73e8';
         button.style.background = isHidden ? '#1a73e8' : '#f8fafd';
-        
+
         explorerHeader.style.borderBottom = isHidden ? 'none' : '0.5px #bfbfbf solid';
 
         resizeHandle.style.display = isHidden ? 'none' : 'block';
 
-        if(docsHeader){
+        searchBarDiv.style.display = isHidden ? 'none' : 'block';
+
+        if (docsHeader) {
             docsHeader.style.width = isHidden ? '100%' : `calc(100% - 340px)`
         }
     };
 
     button.onclick = toggleSidebar;
- 
+
     explorerHeader.appendChild(button);
 
     const mainPage = wrapBodyContent();
@@ -115,7 +129,7 @@ const createSidebar = () => {
     // Insert sidebar as first element
     document.body.insertBefore(sidebar, document.body.firstChild);
 
-    // Implement resizing functionality
+    // Resizing functionality
     let isResizing = false;
 
     resizeHandle.addEventListener('mousedown', (e) => {
@@ -130,14 +144,14 @@ const createSidebar = () => {
     document.addEventListener('mousemove', (e) => {
         if (!isResizing) return;
         const newWidth = Math.max(130, e.clientX);
-        if(newWidth < 135){
+        if (newWidth < 135) {
             toggleSidebar;
         }
         sidebar.style.width = `${newWidth}px`;
         container.style.width = `${newWidth}px`;
         mainPage.style.marginLeft = `${newWidth + 15}px`;
-        if(docsHeader){
-            docsHeader.style.width = `calc(100% - ${newWidth + 15 }px)`;
+        if (docsHeader) {
+            docsHeader.style.width = `calc(100% - ${newWidth + 15}px)`;
         }
     });
 
@@ -146,6 +160,51 @@ const createSidebar = () => {
         document.body.style.cursor = 'default';
         sidebar.style.transition = 'all 0.1s ease-out';
     });
+
+    // Search functionality
+    searchInput.addEventListener('input', () => {
+        const query = searchInput.value.toLowerCase();
+        const items = document.querySelectorAll('#fileExplorer li');
+
+        items.forEach(item => {
+            const text = item.textContent.toLowerCase();
+            const isMatch = text.includes(query);
+            const isFolder = item.querySelector('a.folder');
+
+            if (isMatch) {
+                item.style.display = '';
+
+                if (isFolder) {
+                    // If the matching item is a folder, expand it
+                    const childUl = item.querySelector('ul');
+                    if (childUl) {
+                        childUl.classList.add('expanded');
+                        childUl.style.display = '';
+                    }
+                }
+
+                // Ensure all parent folders are expanded
+                let parent = item.parentElement;
+                while (parent && parent.tagName === 'UL') {
+                    parent.classList.add('expanded');
+                    parent.style.display = '';
+                    parent = parent.parentElement.closest('li');
+                }
+            } else {
+                item.style.display = 'none';
+
+                // Collapse non-matching folders
+                if (isFolder) {
+                    const childUl = item.querySelector('ul');
+                    if (childUl) {
+                        childUl.classList.remove('expanded');
+                        childUl.style.display = 'none';
+                    }
+                }
+            }
+        });
+    });
+
 
 };
 
