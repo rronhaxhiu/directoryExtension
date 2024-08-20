@@ -45,6 +45,7 @@ function fetchFilesAndNotify(tabId) {
         const driveNames = {};       // Store drive names by driveId
 
         const fetchFiles = async (pageToken = '', folderId = null, driveId = null) => {
+        const fetchFiles = async (pageToken = '', folderId = null, driveId = null) => {
             let query = folderId ? `'${folderId}' in parents and ` : '';
             query += 'mimeType=\'application/vnd.google-apps.document\' or ' +
                 'mimeType=\'application/vnd.google-apps.folder\' or ' +
