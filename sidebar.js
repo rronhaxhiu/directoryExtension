@@ -167,12 +167,18 @@ const createSidebar = () => {
         const items = document.querySelectorAll('#fileExplorer li');
 
         items.forEach(item => {
+            const link = item.querySelector('a');
             const text = item.textContent.toLowerCase();
             const isMatch = text.includes(query);
-            const isFolder = item.querySelector('a.folder');
+            const isFolder = item.querySelector('folder');
 
             if (isMatch) {
                 item.style.display = '';
+
+                const highlightedText = link.textContent.replace(new RegExp(query, 'gi'), (match) => {
+                    return `<span class="highlight">${match}</span>`;
+                });
+                link.innerHTML = highlightedText;
 
                 if (isFolder) {
                     // If the matching item is a folder, expand it

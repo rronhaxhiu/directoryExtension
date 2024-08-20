@@ -296,3 +296,8 @@
 #searchInput::placeholder {
     color: var(--primary-color);
 }
+
+.highlight {
+    background-color: yellow; 
+    font-weight: bold;
+}
