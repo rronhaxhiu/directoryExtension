@@ -1,11 +1,27 @@
-/* Sidebar container styles */
+:root {
+    --sidebar-width: 330px;
+    --sidebar-background-color: #f8fafd;
+    --primary-color: #1a73e8;
+    --text-color: #333;
+    --hover-background-color: #E7E8EB;
+    --active-background-color: #c2e7ff;
+    --border-radius: 100px;
+    --padding: 10px;
+    --transition-duration: 0.3s;
+    --font-size-large: 25px;
+    --font-size-xlarge: 30px;
+    --font-size-hover: 32px;
+    --border-color: #ddd;
+    --box-shadow-color: rgba(0, 0, 0, 0.1);
+}
+
 #fileExplorer {
     width: 100%;
     position: absolute;
     left: 0;
-    background-color: #f8fafd;
+    background-color: var(--sidebar-background-color);
     overflow-y: auto;
-    padding: 10px;
+    padding: var(--padding);
     direction: ltr !important;
     box-sizing: border-box;
 
@@ -15,40 +31,33 @@
 }
 
 #container {
-    width: 330px;
+    width: var(--sidebar-width);
     overflow: hidden !important;
     white-space: nowrap !important;
     text-overflow: ellipsis !important;
 }
 
-/* Styling for list items */
 #fileExplorer ul {
     list-style-type: none;
-    /* Remove default bullets */
     padding-left: 20px;
-    /* Remove default padding */
-    transition: max-height 0.3s ease-out, opacity 0.3s ease-out;
+    transition: max-height var(--transition-duration) ease-out, opacity var(--transition-duration) ease-out;
 }
 
 #fileExplorer li {
     margin: 5px 0;
-    /* Margin between items */
     position: relative;
     list-style: none;
 }
 
-/* Folder styling */
 #fileExplorer .folder {
     font-weight: bold;
     cursor: pointer;
     display: block;
     padding: 5px;
-    border-radius: 100px;
-    /* Rounded corners */
-    transition: background-color 0.3s;
-    /* Smooth background color transition */
+    border-radius: var(--border-radius);
+    transition: background-color var(--transition-duration);
     text-decoration: none;
-    color: #333;
+    color: var(--text-color);
     height: 32px;
     align-content: center;
     padding-left: 15px;
@@ -61,30 +70,22 @@
     max-width: fit-content;
 }
 
-/* Folder hover effect */
 #fileExplorer .folder:hover {
-    background-color: #E7E8EB;
-    /* Background color on hover */
+    background-color: var(--hover-background-color);
     text-decoration: none;
 }
 
-/* Folder focus effect */
 #fileExplorer .folder:focus {
     outline: none !important;
 }
 
-/* File styling */
 #fileExplorer .file {
     display: block;
     padding: 5px;
-    border-radius: 100px;
-    /* Rounded corners */
-    transition: background-color 0.3s;
-    /* Smooth background color transition */
+    border-radius: var(--border-radius);
+    transition: background-color var(--transition-duration);
     text-decoration: none;
-    /* Remove underline from links */
-    color: #333;
-    /* Text color */
+    color: var(--text-color);
     height: 32px;
     align-content: center;
     padding-left: 15px;
@@ -97,21 +98,16 @@
     max-width: fit-content;
 }
 
-/* File hover effect */
 #fileExplorer .file:hover {
-    background-color: #E7E8EB;
-    /* Background color on hover */
+    background-color: var(--hover-background-color);
 }
 
-/* File focus effect */
 #fileExplorer .file:focus {
     outline: none !important;
 }
 
-/* Indentation for child elements */
 #fileExplorer ul ul {
     padding-left: 20px;
-    /* Indent child items */
 }
 
 #explorerHeader {
@@ -125,8 +121,8 @@
 }
 
 #explorerTitle {
-    font-size: 25px;
-    color: #1a73e8;
+    font-size: var(--font-size-large);
+    color: var(--primary-color);
     font-weight: bold;
 }
 
@@ -137,15 +133,15 @@
 
 #explorerButton {
     border: none;
-    color: #1a73e8;
+    color: var(--primary-color);
     transition: all 0.1s ease-out;
-    font-size: 30px;
+    font-size: var(--font-size-xlarge);
     height: 80%;
-    background-color: #f8fafd;
+    background-color: var(--sidebar-background-color);
 }
 
 #explorerButton:hover {
-    font-size: 32px;
+    font-size: var(--font-size-hover);
 }
 
 #explorerButton:focus {
@@ -153,19 +149,18 @@
     background: none;
 }
 
-
 #google-docs-sidebar {
     position: fixed;
     top: 0;
     left: 0;
-    width: 330px;
+    width: var(--sidebar-width);
     height: 100%;
-    background-color: #f8fafd;
+    background-color: var(--sidebar-background-color);
     overflow-y: scroll;
-    box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+    box-shadow: 2px 0 5px var(--box-shadow-color);
     z-index: 1000;
-    padding: 10px;
-    border-right: 2px solid #ddd;
+    padding: var(--padding);
+    border-right: 2px solid var(--border-color);
     min-width: 130px;
     direction: rtl;
     overflow-x: hidden;
@@ -176,14 +171,11 @@
     outline: none;
 }
 
-
 #fileExplorer .file.active {
-    background-color: #c2e7ff;
+    background-color: var(--active-background-color);
     font-weight: bold;
 }
 
-
-/* Loading style  */
 #loadingDiv {
     direction: ltr !important;
     position: absolute;
@@ -193,11 +185,10 @@
     align-items: center;
     justify-content: center;
     flex-direction: column;
-
 }
 
 #loadingMessage {
-    color: #333;
+    color: var(--text-color);
     font-weight: bold;
     font-size: large;
     margin: 20px;
@@ -215,7 +206,7 @@
 #loader:after {
     content: "";
     position: relative;
-    background: repeating-linear-gradient(90deg, #0000 0 calc(50% - 8px), #333 0 calc(50% + 8px), #0000 0 100%) 0 0/calc(100%/3) 100%;
+    background: repeating-linear-gradient(90deg, #0000 0 calc(50% - 8px), var(--text-color) 0 calc(50% + 8px), #0000 0 100%) 0 0/calc(100%/3) 100%;
     animation: l6-1 1s infinite;
 }
 
@@ -227,7 +218,7 @@
     left: calc(50% - 7px);
     bottom: 0;
     border-radius: 50%;
-    background: #1a73e8;
+    background: var(--primary-color);
     animation: l6-2 1s infinite;
 }
 
@@ -235,7 +226,7 @@
 
     50%,
     100% {
-        background-position: calc(100%/2) 0
+        background-position: calc(100%/2) 0;
     }
 }
 
@@ -243,14 +234,12 @@
 
     0%,
     50% {
-        transform: translateY(-80px)
+        transform: translateY(-80px);
     }
 }
 
-
-/* Folder functionality styling */
 .collapsible {
-    transition: all 0.3s ease-out;
+    transition: all var(--transition-duration) ease-out;
     overflow: hidden;
     max-height: 0;
     opacity: 0;
@@ -259,7 +248,7 @@
 }
 
 .collapsible.expanded {
-    transition: all 0.3s ease-out;
+    transition: all var(--transition-duration) ease-out;
     max-height: 1000px;
     opacity: 1;
     height: auto;
@@ -280,16 +269,12 @@
     top: 0;
 }
 
-
-/* Sidebar hidden */
 .hidden {
     display: flex;
     justify-content: center;
     align-items: center;
 }
 
-
-/* Docs header  */
 #docsHeader {
     right: 0 !important;
     left: auto;
