@@ -13,11 +13,19 @@ chrome.action.onClicked.addListener(() => {
             chrome.scripting.executeScript({
                 target: { tabId: activeTabId },
                 files: ['sidebar.js']
-            });
+            }, () => {
+                // Check for any errors in script injection
+                if (chrome.runtime.lastError) {
+                    console.error('Script injection failed: ', chrome.runtime.lastError.message);
+                    return;
+                }
 
-            // Fetch files and notify the content script once they are fetched
-            fetchFilesAndNotify(activeTabId);
-            firstTimeRender = false;} else {
+                // Add a delay to ensure the content script is loaded
+                setTimeout(() => {
+                    fetchFilesAndNotify(activeTabId);
+                }, 500); // Adjust delay as necessary
+            });
+        } else {
             console.error('Script can only be injected in Google Drive or Google Docs');
         }
     });
@@ -30,11 +38,13 @@ function fetchFilesAndNotify(tabId) {
             return;
         }
 
-        console.log('Token received:', token);
+        console.log('Token received');
 
         const allItems = new Map();  // Use Map to avoid duplicate entries
+        const driveFolders = {};     // Store files separately for each drive
+        const driveNames = {};       // Store drive names by driveId
 
-        const fetchFiles = async (pageToken = '', folderId = null) => {
+        const fetchFiles = async (pageToken = '', folderId = null, driveId = null) => {
             let query = folderId ? `'${folderId}' in parents and ` : '';
             query += 'mimeType=\'application/vnd.google-apps.document\' or ' +
                 'mimeType=\'application/vnd.google-apps.folder\' or ' +
@@ -54,13 +64,26 @@ function fetchFilesAndNotify(tabId) {
                 'mimeType=\'application/msword\' or ' +
                 'mimeType=\'application/vnd.openxmlformats-officedocument.wordprocessingml.document\' or ' +
                 'mimeType=\'application/zip\' or ' +
-                'mimeType=\'application/x-tar\'';
-            let url = `https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(query)}&fields=nextPageToken,files(id,name,mimeType,webViewLink,webContentLink,parents)`;
+                'mimeType=\'application/x-tar\' or ' +
+                'mimeType=\'video/mp4\' or ' +
+                'mimeType=\'video/x-msvideo\' or ' +
+                'mimeType=\'video/x-matroska\' or ' +
+                'mimeType=\'video/quicktime\' or ' +
+                'mimeType=\'video/x-flv\'';
+
+            let url = `https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(query)}&fields=nextPageToken,files(id,name,mimeType,webViewLink,webContentLink,parents)&includeItemsFromAllDrives=true&supportsAllDrives=true`;
+
+            if (driveId) {
+                url += `&driveId=${driveId}&corpora=drive`;
+            } else {
+                url += `&corpora=user`;
+            }
+
             if (pageToken) {
                 url += `&pageToken=${pageToken}`;
             }
 
-            console.log('Fetching URL:', url);
+            console.log('Drive API request on:', url);
 
             const response = await fetch(url, {
                 headers: {
@@ -77,54 +100,67 @@ function fetchFilesAndNotify(tabId) {
 
             data.files.forEach(file => {
                 if (file && file.id) {
-                    console.log('Processing file:', file);
+                    file.driveId = driveId || null;
                     allItems.set(file.id, file);
+                    if (!driveFolders[driveId]) {
+                        driveFolders[driveId] = [];
+                    }
+                    driveFolders[driveId].push(file);
                 } else {
                     console.error('Invalid file data:', file);
                 }
             });
 
             if (data.nextPageToken) {
-                return fetchFiles(data.nextPageToken, folderId);
+                return await fetchFiles(data.nextPageToken, folderId, driveId);
             }
         };
 
-        const fetchFolderContents = async (folderId) => {
-            await fetchFiles('', folderId);
-            const folderItems = Array.from(allItems.values()).filter(item => item && item.parents && item.parents.includes(folderId));
-            const subFolderPromises = folderItems.filter(item => item.mimeType === 'application/vnd.google-apps.folder').map(subFolder => {
-                if (subFolder && subFolder.id) {
-                    return fetchFolderContents(subFolder.id);
-                }
-                return Promise.resolve();
-            });
-
-            await Promise.all(subFolderPromises);
-        };
-
+        // Fetch My Drive
         await fetchFiles();
-        const rootFolders = Array.from(allItems.values()).filter(item => item.mimeType === 'application/vnd.google-apps.folder' && (!item.parents || item.parents.length === 0));
 
-        if (rootFolders.length) {
-            const rootFolderPromises = rootFolders.map(folder => fetchFolderContents(folder.id));
-            await Promise.all(rootFolderPromises);
+        // Fetch Shared Drives
+        const sharedDrivesResponse = await fetch('https://www.googleapis.com/drive/v3/drives', {
+            headers: {
+                'Authorization': 'Bearer ' + token
+            }
+        });
+
+        if (sharedDrivesResponse.ok) {
+            const sharedDrivesData = await sharedDrivesResponse.json();
+            const sharedDrives = sharedDrivesData.drives || [];
+
+            for (const drive of sharedDrives) {
+                console.log('Fetching Shared Drive:', drive.name);
+                driveNames[drive.id] = drive.name;  // Store the drive name
+                await fetchFiles('', null, drive.id);
+            }
+        } else {
+            console.error('Failed to fetch Shared Drives:', sharedDrivesResponse.statusText);
         }
 
+        // Store the items separately for My Drive and each Shared Drive
         const items = Array.from(allItems.values());
-        const constructDocUrl = (fileId) => `https://docs.google.com/document/d/${fileId}/view`;
-
         const itemsWithLinks = items.map(item => ({
             id: item.id,
             name: item.name,
             mimeType: item.mimeType,
-            url: item.webViewLink || item.webContentLink || (item.mimeType === 'application/vnd.google-apps.document' ? constructDocUrl(item.id) : 'No Link Available'),
-            parents: item.parents || []
+            url: item.webViewLink || item.webContentLink,
+            parents: item.parents || [],
+            driveId: item.driveId || null
         }));
 
         console.log('Items with links:', itemsWithLinks);
 
-        chrome.storage.local.set({ items: itemsWithLinks }, () => {
-            chrome.tabs.sendMessage(tabId, { action: 'filesFetched' });
+        chrome.storage.local.set({ items: itemsWithLinks, driveFolders: driveFolders, driveNames: driveNames }, () => {
+            chrome.tabs.sendMessage(tabId, { action: 'filesFetched' }, (response) => {
+                if (chrome.runtime.lastError) {
+                    console.error('Could not send message to content script:', chrome.runtime.lastError.message);
+                } else {
+                    console.log('Message sent to content script:', response);
+                }
+            });
+
         });
     });
 }

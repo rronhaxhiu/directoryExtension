@@ -1,38 +1,40 @@
 /* Sidebar container styles */
 #fileExplorer {
-    width: 300px;
-    /* Width of the sidebar */
-    height: 100vh;
-    /* Full viewport height */
-    position: fixed;
-    /* Fixed position to stay on the left side */
-    top: 0;
+    width: 100%;
+    position: absolute;
     left: 0;
-    /* Position on the left */
-    background-color: white;
-    /* Light background color */
-    border-right: 2px solid #ddd;
-    /* Border to the right of the sidebar */
+    background-color: #f8fafd;
     overflow-y: auto;
-    /* Scrollable content */
     padding: 10px;
-    /* Padding inside the sidebar */
-    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-    /* Shadow effect */
+    direction: ltr !important;
+    box-sizing: border-box;
+
+    overflow: hidden !important;
+    white-space: nowrap !important;
+    text-overflow: ellipsis !important;
+}
+
+#container {
+    width: 330px;
+    overflow: hidden !important;
+    white-space: nowrap !important;
+    text-overflow: ellipsis !important;
 }
 
 /* Styling for list items */
 #fileExplorer ul {
     list-style-type: none;
     /* Remove default bullets */
-    padding-left: 0;
+    padding-left: 20px;
     /* Remove default padding */
+    transition: max-height 0.3s ease-out, opacity 0.3s ease-out;
 }
 
 #fileExplorer li {
     margin: 5px 0;
     /* Margin between items */
     position: relative;
+    list-style: none;
 }
 
 /* Folder styling */
@@ -50,9 +52,13 @@
     height: 32px;
     align-content: center;
     padding-left: 15px;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
+    overflow: hidden !important;
+    white-space: nowrap !important;
+    text-overflow: ellipsis !important;
+
+    min-width: 280px;
+    width: auto;
+    max-width: fit-content;
 }
 
 /* Folder hover effect */
@@ -82,9 +88,13 @@
     height: 32px;
     align-content: center;
     padding-left: 15px;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
+    overflow: hidden !important;
+    white-space: nowrap !important;
+    text-overflow: ellipsis !important;
+
+    min-width: 280px;
+    width: fit-content;
+    max-width: fit-content;
 }
 
 /* File hover effect */
@@ -94,7 +104,7 @@
 }
 
 /* File focus effect */
-#fileExplorer .folder:focus {
+#fileExplorer .file:focus {
     outline: none !important;
 }
 
@@ -111,50 +121,59 @@
     border-bottom: 0.5px #bfbfbf solid;
     padding: 5px;
     padding-bottom: 7px;
+    direction: ltr !important;
 }
 
 #explorerTitle {
-    font-size: 15px;
-    color: #333;
+    font-size: 25px;
+    color: #1a73e8;
+    font-weight: bold;
+}
+
+#explorerTitle:focus {
+    outline: none;
+    background: none;
 }
 
 #explorerButton {
-    font-weight: bolder;
-    color: #fff;
     border: none;
-    background: #1a73e8;
-    border-radius: 50% !important;
-    cursor: pointer;
-    padding: 5px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background-color 0.3s;
-    width: 20px;
-    height: 20px;
-    top: 50%;
-    left: 310px;
-    z-index: 1001;
-    position: absolute;
-    font-size: unset;
-    font-weight: normal;
+    color: #1a73e8;
+    transition: all 0.1s ease-out;
+    font-size: 30px;
+    height: 80%;
+    background-color: #f8fafd;
 }
 
 #explorerButton:hover {
-    box-shadow: 0px 0px 8px gray;
-    transition: 0.2s;
+    font-size: 32px;
 }
 
 #explorerButton:focus {
     outline: none;
+    background: none;
 }
 
-.hidden {
-    display: none;
-}
 
 #google-docs-sidebar {
-    background-color: #f4f4f4;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 330px;
+    height: 100%;
+    background-color: #f8fafd;
+    overflow-y: scroll;
+    box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+    z-index: 1000;
+    padding: 10px;
+    border-right: 2px solid #ddd;
+    min-width: 130px;
+    direction: rtl;
+    overflow-x: hidden;
+    bottom: 0;
+}
+
+#google-docs-sidebar:focus {
+    outline: none;
 }
 
 
@@ -163,3 +182,116 @@
     font-weight: bold;
 }
 
+
+/* Loading style  */
+#loadingDiv {
+    direction: ltr !important;
+    position: absolute;
+    top: 50%;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+
+}
+
+#loadingMessage {
+    color: #333;
+    font-weight: bold;
+    font-size: large;
+    margin: 20px;
+}
+
+#loader {
+    width: 90px;
+    height: 14px;
+    box-shadow: 0 3px 0 #fff;
+    position: relative;
+    display: grid;
+    clip-path: inset(-60px 0 -5px);
+}
+
+#loader:after {
+    content: "";
+    position: relative;
+    background: repeating-linear-gradient(90deg, #0000 0 calc(50% - 8px), #333 0 calc(50% + 8px), #0000 0 100%) 0 0/calc(100%/3) 100%;
+    animation: l6-1 1s infinite;
+}
+
+#loader:before {
+    content: "";
+    position: absolute;
+    width: 14px;
+    aspect-ratio: 1;
+    left: calc(50% - 7px);
+    bottom: 0;
+    border-radius: 50%;
+    background: #1a73e8;
+    animation: l6-2 1s infinite;
+}
+
+@keyframes l6-1 {
+
+    50%,
+    100% {
+        background-position: calc(100%/2) 0
+    }
+}
+
+@keyframes l6-2 {
+
+    0%,
+    50% {
+        transform: translateY(-80px)
+    }
+}
+
+
+/* Folder functionality styling */
+.collapsible {
+    transition: all 0.3s ease-out;
+    overflow: hidden;
+    max-height: 0;
+    opacity: 0;
+    height: 0px;
+    margin: 0px;
+}
+
+.collapsible.expanded {
+    transition: all 0.3s ease-out;
+    max-height: 1000px;
+    opacity: 1;
+    height: auto;
+}
+
+.folder {
+    cursor: pointer;
+    font-weight: bold;
+}
+
+#resize-handle {
+    width: 15px;
+    height: 100%;
+    background-color: #0000;
+    cursor: ew-resize;
+    position: absolute;
+    right: -2px;
+    top: 0;
+}
+
+
+/* Sidebar hidden */
+.hidden {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+
+/* Docs header  */
+#docsHeader {
+    right: 0 !important;
+    left: auto;
+    width: calc(100% - 345px);
+}
