@@ -4,6 +4,10 @@
 const wrapBodyContent = () => {
     const body = document.body;
 
+    if (document.getElementById('mainPage')) {
+        return document.getElementById('mainPage'); // Return existing mainPage if it already exists
+    }
+
     // Create a new div to wrap the existing content
     const mainPage = document.createElement('div');
     mainPage.id = 'mainPage';
@@ -49,13 +53,29 @@ const createSidebar = () => {
 
     // Add 'Fetching files...' message
     const loadingDiv = document.createElement('div');
-    const loadingMessage = document.createElement('p');
     const loader = document.createElement('div');
 
+    // Create loader animation
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('class', 'circular');
+    svg.setAttribute('viewBox', '25 25 50 50');
+
+    // Create circle element
+    const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    circle.setAttribute('class', 'path');
+    circle.setAttribute('cx', '50');
+    circle.setAttribute('cy', '50');
+    circle.setAttribute('r', '20');
+    circle.setAttribute('fill', 'none');
+    circle.setAttribute('stroke-width', '3');
+    circle.setAttribute('stroke-miterlimit', '10');
+
+    // Append circle to SVG
+    svg.appendChild(circle);
+    loader.appendChild(svg);
+
     loadingDiv.id = 'loadingDiv';
-    loadingMessage.id = 'loadingMessage';
     loader.id = 'loader';
-    loadingMessage.textContent = 'Fetching files';
 
     // Add file tree container
     const container = document.createElement('div');
@@ -63,7 +83,6 @@ const createSidebar = () => {
 
     sidebar.appendChild(container);
     loadingDiv.appendChild(loader);
-    loadingDiv.appendChild(loadingMessage);
     sidebar.appendChild(loadingDiv);
 
     // Add resize handle
@@ -124,6 +143,7 @@ const createSidebar = () => {
     explorerHeader.appendChild(button);
 
     const mainPage = wrapBodyContent();
+
     mainPage.style.marginLeft = '345px';
 
     // Insert sidebar as first element
@@ -221,6 +241,13 @@ const loadFileExplorer = async () => {
         loadingDiv.style.display = 'none';
     }
 
+    let existingFileExplorer = document.getElementById('fileExplorer');
+
+    if (existingFileExplorer) {
+        console.log('fileExplorer already exists, skipping creation.');
+        return;
+    }
+
     const fileExplorer = document.createElement('div');
     fileExplorer.id = 'fileExplorer';
     document.getElementById('container').appendChild(fileExplorer);
@@ -280,11 +307,26 @@ const loadFileExplorer = async () => {
             li.dataset.id = node.id;
 
             if (node.mimeType === 'application/vnd.google-apps.folder') {
+                const folderDiv = document.createElement('div');
+                const expander = document.createElement('img');
+                const icon = document.createElement('img');
                 const folderLink = document.createElement('a');
+
+                icon.style.width = '20px';
+
+                folderDiv.classList.add('item');
+                expander.classList.add('expander');
+                expander.src = chrome.runtime.getURL('/images/expander.png');
+                icon.src = chrome.runtime.getURL('/images/folder.png');
+
+                folderDiv.appendChild(expander);
+                folderDiv.appendChild(icon);
+                folderDiv.appendChild(folderLink);
+
                 folderLink.textContent = node.name;
                 folderLink.href = '#';
-                folderLink.classList.add('folder');
-                folderLink.onclick = (e) => {
+                folderDiv.classList.add('folder');
+                folderDiv.onclick = (e) => {
                     e.preventDefault();
                     const childUl = li.querySelector('ul');
                     if (childUl) {
@@ -292,19 +334,78 @@ const loadFileExplorer = async () => {
                     }
                 };
 
-                li.appendChild(folderLink);
+                li.appendChild(folderDiv);
 
                 const childTree = renderTree(node.children);
                 if (childTree.childElementCount > 0) {
                     childTree.classList.add('collapsible');
                     li.appendChild(childTree);
                 }
-            } else {
+            } else if (node.mimeType === 'application/vnd.google-apps.spreadsheet' ||
+                node.mimeType === 'application/vnd.ms-excel' ||
+                node.mimeType === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+            ) {
+                const fileDiv = document.createElement('div');
+                const expander = document.createElement('img');
+                const icon = document.createElement('img');
                 const fileLink = document.createElement('a');
+
+                fileDiv.classList.add('item');
+                expander.classList.add('expander');
+                icon.classList.add('icon');
+                expander.src = chrome.runtime.getURL('/images/expander.png');
+                icon.src = chrome.runtime.getURL('/images/sheets.png');
+
+                fileDiv.appendChild(expander);
+                fileDiv.appendChild(icon);
+                fileDiv.appendChild(fileLink);
+
                 fileLink.textContent = node.name;
                 fileLink.href = node.url;
-                fileLink.classList.add('file');
-                li.appendChild(fileLink);
+                fileDiv.classList.add('file');
+                li.appendChild(fileDiv);
+            } else if (node.mimeType === 'application/vnd.google-apps.presentation' ||
+                node.mimeType === 'application/vnd.openxmlformats-officedocument.presentationml.presentation'
+            ) {
+                const fileDiv = document.createElement('div');
+                const expander = document.createElement('img');
+                const icon = document.createElement('img');
+                const fileLink = document.createElement('a');
+
+                fileDiv.classList.add('item');
+                expander.classList.add('expander');
+                icon.classList.add('icon');
+                expander.src = chrome.runtime.getURL('/images/expander.png');
+                icon.src = chrome.runtime.getURL('/images/presentation.png');
+
+                fileDiv.appendChild(expander);
+                fileDiv.appendChild(icon);
+                fileDiv.appendChild(fileLink);
+
+                fileLink.textContent = node.name;
+                fileLink.href = node.url;
+                fileDiv.classList.add('file');
+                li.appendChild(fileDiv);
+            } else {
+                const fileDiv = document.createElement('div');
+                const expander = document.createElement('img');
+                const icon = document.createElement('img');
+                const fileLink = document.createElement('a');
+
+                fileDiv.classList.add('item');
+                expander.classList.add('expander');
+                icon.classList.add('icon');
+                expander.src = chrome.runtime.getURL('/images/expander.png');
+                icon.src = chrome.runtime.getURL('/images/file.png');
+
+                fileDiv.appendChild(expander);
+                fileDiv.appendChild(icon);
+                fileDiv.appendChild(fileLink);
+
+                fileLink.textContent = node.name;
+                fileLink.href = node.url;
+                fileDiv.classList.add('file');
+                li.appendChild(fileDiv);
             }
 
             ul.appendChild(li);

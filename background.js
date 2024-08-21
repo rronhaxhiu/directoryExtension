@@ -1,35 +1,58 @@
-chrome.runtime.onInstalled.addListener(() => {
-    console.log('Google Docs Explorer installed');
-});
+const CACHE_EXPIRATION_TIME = 60 * 60 * 1000; // 1 hour in milliseconds
 
+chrome.webNavigation.onCompleted.addListener((details) => {
+    if (!details || !details.url) {
+        console.error('Invalid details or URL is undefined');
+        return;
+    }
 
-chrome.action.onClicked.addListener(() => {
-    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-        const activeTabId = tabs[0].id;
-        const activeTabUrl = tabs[0].url;
+    const { tabId, url } = details;
 
-        // Check if the URL is docs.google.com
-        if (activeTabUrl.startsWith('https://docs.google.com/') || activeTabUrl.startsWith('https://drive.google.com/')) {
-            chrome.scripting.executeScript({
-                target: { tabId: activeTabId },
-                files: ['sidebar.js']
-            }, () => {
-                // Check for any errors in script injection
-                if (chrome.runtime.lastError) {
-                    console.error('Script injection failed: ', chrome.runtime.lastError.message);
-                    return;
-                }
+    if (url && (url.startsWith('https://docs.google.com/') || url.startsWith('https://drive.google.com/'))) {
+        chrome.storage.local.get(['items', 'driveFolders', 'driveNames', 'timestamp'], (result) => {
+            const currentTime = Date.now();
+            const isCacheValid = result.timestamp && (currentTime - result.timestamp < CACHE_EXPIRATION_TIME);
 
-                // Add a delay to ensure the content script is loaded
-                setTimeout(() => {
-                    fetchFilesAndNotify(activeTabId);
-                }, 500); // Adjust delay as necessary
-            });
-        } else {
-            console.error('Script can only be injected in Google Drive or Google Docs');
-        }
-    });
-});
+            if (isCacheValid && result.items && result.driveFolders && result.driveNames) {
+                console.log('Using cached data');
+                chrome.scripting.executeScript({
+                    target: { tabId },
+                    files: ['sidebar.js']
+                }, () => {
+                    if (chrome.runtime.lastError) {
+                        console.error('Script injection failed: ', chrome.runtime.lastError.message);
+                        return;
+                    }
+
+                    setTimeout(() => {
+                        chrome.tabs.sendMessage(tabId, { action: 'filesFetched' }, (response) => {
+                            if (chrome.runtime.lastError) {
+                                console.log('Could not send message to content script:', chrome.runtime.lastError.message);
+                            } else {
+                                console.log('Message sent to content script:', response);
+                            }
+                        });
+                    }, 500); // Ensure the content script is ready
+                });
+            } else {
+                console.log('Cache is invalid or data not found. Fetching new data.');
+                chrome.scripting.executeScript({
+                    target: { tabId },
+                    files: ['sidebar.js']
+                }, () => {
+                    if (chrome.runtime.lastError) {
+                        console.error('Script injection failed: ', chrome.runtime.lastError.message);
+                        return;
+                    }
+
+                    setTimeout(() => {
+                        fetchFilesAndNotify(tabId);
+                    }, 500);
+                });
+            }
+        });
+    }
+}, { url: [{ hostSuffix: 'google.com' }] });
 
 function fetchFilesAndNotify(tabId) {
     chrome.identity.getAuthToken({ interactive: true }, async (token) => {
@@ -153,14 +176,15 @@ function fetchFilesAndNotify(tabId) {
         console.log('Items with links:', itemsWithLinks);
 
         chrome.storage.local.set({ items: itemsWithLinks, driveFolders: driveFolders, driveNames: driveNames }, () => {
-            chrome.tabs.sendMessage(tabId, { action: 'filesFetched' }, (response) => {
-                if (chrome.runtime.lastError) {
-                    console.error('Could not send message to content script:', chrome.runtime.lastError.message);
-                } else {
-                    console.log('Message sent to content script:', response);
-                }
-            });
-
+            setTimeout(() => {
+                chrome.tabs.sendMessage(tabId, { action: 'filesFetched' }, (response) => {
+                    if (chrome.runtime.lastError) {
+                        console.error('Could not send message to content script:', chrome.runtime.lastError.message);
+                    } else {
+                        console.log('Message sent to content script:', response);
+                    }
+                });
+            }, 500); // Ensure the content script is ready
         });
     });
 }
