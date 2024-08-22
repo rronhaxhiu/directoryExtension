@@ -30,6 +30,7 @@
   overflow: hidden !important;
   white-space: nowrap !important;
   text-overflow: ellipsis !important;
+  padding-bottom: 150px;
 }
 
 #container {
@@ -51,8 +52,7 @@
   list-style: none;
 }
 
-#fileExplorer .folder {
-  cursor: pointer;
+#fileExplorer .folder .file {
   display: flex;
   border-radius: var(--border-radius);
   transition: background-color var(--transition-duration);
@@ -74,28 +74,10 @@
 
 #fileExplorer .folder:hover {
   background-color: var(--hover-background-color);
-  text-decoration: none;
 }
 
 #fileExplorer .folder:focus {
   outline: none !important;
-}
-
-#fileExplorer .file {
-  display: block;
-  border-radius: var(--border-radius);
-  transition: background-color var(--transition-duration);
-  text-decoration: none;
-  color: var(--text-color);
-  height: 32px;
-  align-content: center;
-  overflow: hidden !important;
-  white-space: nowrap !important;
-  text-overflow: ellipsis !important;
-
-  min-width: 280px;
-  width: fit-content;
-  max-width: fit-content;
 }
 
 #fileExplorer a {
@@ -111,6 +93,10 @@
   display: flex;
   align-items: center;
   width: 100%;
+}
+
+#fileExplorer a:focus {
+  outline: none;
 }
 
 #fileExplorer .file:hover {
@@ -386,17 +372,26 @@
 /* Item styling */
 
 .item {
+  cursor:pointer;
   display: flex;
   align-items: center;
   justify-content: center;
+  height: 32px;
+  border-radius: var(--border-radius);
 }
 
 .icon {
-  width: 20px;
+  width: 30px;
   padding-right: 14px;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
 }
 
 .expander {
   width: 12px;
   padding-left: 6px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
