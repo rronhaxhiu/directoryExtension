@@ -1,0 +1,1 @@
+(()=>{var e,n;e=function(){var e;(e=document.createElement("script")).src=chrome.runtime.getURL("sidebar.bundle.js"),e.onload=function(){return e.remove()},document.body.appendChild(e)},(n=document.createElement("link")).rel="stylesheet",n.href=chrome.runtime.getURL("../style.css"),n.onload=e,document.head.appendChild(n)})();

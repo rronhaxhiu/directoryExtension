@@ -12,23 +12,22 @@
     "webNavigation"
   ],
   "background": {
-    "service_worker": "background.js"
+    "service_worker": "./dist/background.bundle.js"
   },
   "oauth2": {
     "client_id": "459881505484-13n2rnhi5mbj31d3k8p2m97425ukaalr.apps.googleusercontent.com",
     "scopes": [
-      "https://www.googleapis.com/auth/drive.readonly",
-      "https://www.googleapis.com/auth/drive.metadata.readonly"
+      "https://www.googleapis.com/auth/drive"
     ]
   },
   "action": {
     "default_icon": {
-      "128": "icon.jpeg"
+      "128": "./src/icon.jpeg"
     },
     "default_title": "Google Docs Explorer"
   },
   "icons": {
-    "128": "icon.jpeg"
+    "128": "./src/icon.jpeg"
   },
   "content_scripts": [
     {
@@ -37,7 +36,7 @@
         "https://docs.google.com/*"
       ],
       "js": [
-        "content.js"
+        "dist/content.bundle.js"
       ],
       "run_at": "document_idle"
     }

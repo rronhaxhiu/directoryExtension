@@ -31,6 +31,7 @@
   white-space: nowrap !important;
   text-overflow: ellipsis !important;
   padding-bottom: 150px;
+  padding-right: 20px;
 }
 
 #container {
@@ -135,19 +136,27 @@
 #explorerButton {
   border: none;
   color: var(--primary-color);
-  transition: all 0.1s ease-out;
+  transition: transform 0.2s ease-out;
   font-size: var(--font-size-xlarge);
   height: 80%;
   background-color: var(--sidebar-background-color);
-}
-
-#explorerButton:hover {
-  font-size: var(--font-size-hover);
+  position: relative;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 5px;
+  visibility: visible;
 }
 
 #explorerButton:focus {
   outline: none;
   background: none;
+}
+
+#explorerButton:hover {
+  transform: scale(1.1);
 }
 
 #google-docs-sidebar {
@@ -191,7 +200,8 @@
 #loader {
   position: relative;
   margin: 0 auto;
-  width: 15%;
+  width: 50px;
+  max-width: 50px;
 }
 
 #loader:before {
@@ -328,7 +338,7 @@
 }
 
 #resize-handle {
-  width: 15px;
+  width: 10px;
   height: 100%;
   background-color: #0000;
   cursor: ew-resize;
@@ -372,7 +382,7 @@
 /* Item styling */
 
 .item {
-  cursor:pointer;
+  cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -382,6 +392,8 @@
 
 .icon {
   width: 30px;
+  min-width: 30px;
+  max-width: 30px;
   padding-right: 14px;
   display: flex;
   justify-content: flex-end;
@@ -390,6 +402,8 @@
 
 .expander {
   width: 12px;
+  min-width: 12px;
+  max-width: 12px;
   padding-left: 6px;
   display: flex;
   justify-content: center;
